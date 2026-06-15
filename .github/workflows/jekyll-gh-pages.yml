@@ -1,17 +1,23 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: Sync Subfolder to Package Branch
 
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'packages/bj/**' # Only run when this folder changes
 
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+jobs:
+  publish-branch:
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
-        With: /bj
-        Path: './dist'
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for filtering
+
+      - name: Push Subfolder to Branch
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: package-pvbj  # Target branch
+          FOLDER: packages/bj # Subfolder path
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
